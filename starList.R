@@ -11,3 +11,5 @@ df <- rbind(dfA[c('Name', 'Rank')], dfB[c('Name', 'Rank')])
 temp <- str_split_fixed(df$Name, " ")
 df['FirstName'] <- temp[,1]
 df['LastName'] <- temp[,2]
+df$Name <- sub(" ", "", tolower(as.character(df$Name)))
+write.csv(df, 'celebrity_ranking.csv')
