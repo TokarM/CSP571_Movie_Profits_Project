@@ -54,3 +54,4 @@ summary(df)
 df$MovieName<-gsub('[[:punct:] ]+',' ',df$MovieName)
 head(df)
 
+write.csv(df,"budgets.csv")
