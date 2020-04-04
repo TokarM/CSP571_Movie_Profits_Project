@@ -46,7 +46,7 @@ movieMaster$amusement <- 0
 ##Setting the Dummy Variables to 1 based on the movie's genres
 
 ##Drama Dummy Variable
-for (row in 1:length(movieMaster)){
+for (row in 1:nrow(movieMaster)){
   for (genre in drama){
     if (grepl(genre, movieMaster$genres[[row]])){
       movieMaster$drama[row] <- 1
@@ -56,7 +56,7 @@ for (row in 1:length(movieMaster)){
 }
 
 ##Thriller Dummy Variable
-for (row in 1:length(movieMaster)){
+for (row in 1:nrow(movieMaster)){
   for (genre in thriller){
     if (grepl(genre, movieMaster$genres[[row]])){
       movieMaster$thriller[row] <- 1
@@ -66,7 +66,7 @@ for (row in 1:length(movieMaster)){
 }
 
 ##Nonfiction Dummy Variable
-for (row in 1:length(movieMaster)){
+for (row in 1:nrow(movieMaster)){
   for (genre in nonfiction){
     if (grepl(genre, movieMaster$genres[[row]])){
       movieMaster$nonfiction[row] <- 1
@@ -76,7 +76,7 @@ for (row in 1:length(movieMaster)){
 }
 
 ##Action Dummy Variable
-for (row in 1:length(movieMaster)){
+for (row in 1:nrow(movieMaster)){
   for (genre in action){
     if (grepl(genre, movieMaster$genres[[row]])){
       movieMaster$action[row] <- 1
@@ -86,7 +86,7 @@ for (row in 1:length(movieMaster)){
 }
 
 ##Amusement Dummy Variable
-for (row in 1:length(movieMaster)){
+for (row in 1:nrow(movieMaster)){
   for (genre in amusement){
     if (grepl(genre, movieMaster$genres[[row]])){
       movieMaster$amusement[row] <- 1
@@ -95,8 +95,10 @@ for (row in 1:length(movieMaster)){
   }
 }
 
-
-movieMaster <- separate(movieMaster, 'production_companies', c("start","producation comp","others"), "'name': '")
+##Standardizing movie title
+movieMaster$original_title <- tolower(movieMaster$original_title)
+movieMaster$original_title<-gsub('[[:punct:] ]+',' ',movieMaster$original_title)
+movieMaster['cleaned title'] <- gsub(' ', '', movieMaster$original_title)
 
 
 movieMaster <- separate(movieMaster, release_date, c('Year', 'Month', 'Date')
