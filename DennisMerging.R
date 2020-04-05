@@ -33,6 +33,9 @@ v4_movie_meta<-v3_movie_meta[!duplicated(v3_movie_meta$cleaned.title), ]
 #Add rank 3 actors
 v4_movie_meta[is.na(v4_movie_meta$actorRank), 'actorRank'] <- 3
 
+#Removing the '0' values from DomesticGross and Runtime
+v4_movie_meta <- v4_movie_meta[v4_movie_meta$runtime !=0,]
+v4_movie_meta <- v4_movie_meta[v4_movie_meta$DomesticGross !=0,]
 
 
 final_dataset <- subset(v4_movie_meta, select = c("original_title", "id", "actorRank", "Director", 
