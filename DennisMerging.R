@@ -21,6 +21,7 @@ ranking$Name <- gsub(searchString, replacementString, ranking$Name)
 cast$Actor <- trimws(cast$Actor)
 cast$Actor <- gsub(searchString, replacementString, cast$Actor)
 
+
 v1_movie_meta<-merge(primary,cast, by='id')
 v2_movie_meta<-merge(v1_movie_meta,budgets,by.x='cleaned.title',by.y='MovieName', all=FALSE)
 v3_movie_meta<-merge(v2_movie_meta,ranking,by.x='Actor',by.y='Name', all.x=TRUE)
@@ -37,6 +38,5 @@ v4_movie_meta[is.na(v4_movie_meta$actorRank), 'actorRank'] <- 3
 final_dataset <- subset(v4_movie_meta, select = c("original_title", "id", "actorRank", "Director", 
                                                   "runtime", "ProductionBudget", "DomesticGross", "release_date",
                                                   "quarter", "drama","thriller", "nonfiction", "action", "amusement"))
-
 write.csv(final_dataset,"final_dataset.csv")
 

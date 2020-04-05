@@ -34,7 +34,6 @@ df<-MovieStatsChart %>% select(`Month`,`MovieName`,`ProductionBudget`,`DomesticG
 df$Month<-as.factor(df$Month)
 df$quarter<-factor(df$Month, levels = c("jan", "feb", "mar", "apr", "may","jun","jul","aug","sep","oct","nov","dec"), labels = c("Q1", "Q1", "Q1", "Q2", "Q2","Q2","Q3","Q3","Q3","Q4","Q4","Q4"))
 nrow(df)
-unique(df$quarter)
 
 df$ProductionBudget<-gsub("\\$","",df$ProductionBudget)
 df$ProductionBudget<-as.numeric(gsub(",","",df$ProductionBudget))
@@ -43,6 +42,7 @@ df$DomesticGross<-as.numeric(gsub(",","",df$DomesticGross))
 summary(df)
 
 df$MovieName<-gsub('[[:punct:] ]+',' ',df$MovieName)
-df <- df[, c('MovieName','ProductionBudget','DomesticGross','quarter')]
+df <- as.data.frame(df[, c('MovieName','ProductionBudget','DomesticGross','quarter')], stringAsFactors = F)
+df2 <- df[!is.na(df$quarter),]
 
-write.csv(df,"budgets.csv")
+write.csv(df2,"budgets.csv")
