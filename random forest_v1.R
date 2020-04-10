@@ -1,6 +1,6 @@
 install.packages("randomForest")
 library(randomForest)
-movie <- read.csv('/Users/kayinho/Documents/IIT/Sem2 - 2020Spring/CSP571/git_project/movie_forecasting/CSP571_Movie_Profits_Project/final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
+movie <- read.csv('/Users/kayinho/Documents/CSP571_Movie_Profits_Project/final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
 head(movie)
 set.seed(123)
 library('caret')
@@ -12,11 +12,11 @@ splitVar <- 'Success_2_to_1'
 
 movieRF <- movie[,c('actorRank', 'runtime','ProductionBudget', 'quarter', 'drama', 'thriller', 'nonfiction', 'action', 'amusement', 'Success_2_to_1')]
 movieRF_inTrain <- createDataPartition(y = movieRF[,splitVar], list = FALSE, p = .8)
-movieRF_train <- movieRF[movieRF_inTrain,]
-movieRF_test <- movieRF[-movieRF_inTrain,]
+movieRF_train <- movieRF[movie_inTrain,]
+movieRF_test <- movieRF[-movie_inTrain,]
 
 movieRF_model1 <- randomForest(Success_2_to_1 ~ ., data = movieRF_train, importance = TRUE, proximity=TRUE, do.trace = 100)
-print(movieRF_model1)
+movieRF_model1
 #Call:
 #  randomForest(formula = Success_2_to_1 ~ ., data = movieRF_train,      importance = TRUE, proximity = TRUE, do.trace = 100) 
 #Type of random forest: classification
@@ -45,8 +45,8 @@ movieRF_model2
 #0 682 21  0.02987198
 #1 189 17  0.91747573 <- high error
 
-predTrain <- predict(movieRF_model2, movieRF_train, type = "class")
-confusionMatrix(predTrain, movieRF_train$Success_2_to_1)
+
+predTrain <- predict(movie_model2, movieRF_train, type = "class")
 # Checking classification accuracy
 table(predTrain, movieRF_train$Success_2_to_1)
 #predTrain             0 1
@@ -57,13 +57,7 @@ table(predTrain, movieRF_train$Success_2_to_1)
 #...
 #Don't know why the rows are not {0,1}
 
-
-plot(movieRF_model1)
-tune <- tuneRF(movieRF_train[,-10], movieRF_train[,10], stepFactor = 0.05, plot = TRUE, ntreeTry = 300, trace = TRUE, improve = 0.05)
 predTest <- predict(movie_model2, movieRF_test, type = "class")
-
-hist(treesize(movieRF_model2))
-     
 # Checking classification accuracy
 mean(predTest == movie_test$Success_2_to_1)   #0 <- most movies are not successful?              
 table(predTest,movie_test$Success_2_to_1)
@@ -88,22 +82,6 @@ varImpPlot(movie_model2)
 #action           14.151061      3.924420
 #amusement         6.972070      4.071059
 #Any idea how to interpret it?
-#IncMSE: tests how worse the model performs without each variable (higher rank means more important)
-#IncNodePurity: measures how pure the nodes at the end of the tree without each variable (higher rank means higher contribution as paramters)
-
-varUsed(movieRF_model2)
-#actorRank runtime ProductionBudget quarter drama thriller nonfiction action amusement
-#12596     45913   48058            21968   9367  7917     7287       5247   10553
-
-#partial dependence plot
-partialPlot(movieRF_model2, movieRF_train, actorRank, "1")
-partialPlot(movieRF_model2, movieRF_train, runtime, "1")
-
-#read single tree
-getTree(movieRF_model2, 1, labelVar = TRUE)
-
-#multi-dimensional scaling plot of proximity matrix
-MDSplot(movieRF_model1, movieRF_train$Success_2_to_1)
 
 #function to find the best paramaters
 a=c()
