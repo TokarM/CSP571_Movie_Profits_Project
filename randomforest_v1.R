@@ -1,6 +1,6 @@
 install.packages("randomForest")
 library(randomForest)
-movie <- read.csv('/Users/kayinho/Documents/IIT/Sem2 - 2020Spring/CSP571/git_project/movie_forecasting/CSP571_Movie_Profits_Project/final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
+movie <- read.csv('/Users/kayinho/Documents/CSP571_Movie_Profits_Project/final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
 head(movie)
 set.seed(123)
 library('caret')
@@ -16,7 +16,7 @@ movieRF_train <- movieRF[movieRF_inTrain,]
 movieRF_test <- movieRF[-movieRF_inTrain,]
 
 movieRF_model1 <- randomForest(Success_2_to_1 ~ ., data = movieRF_train, importance = TRUE, proximity=TRUE, do.trace = 100)
-print(movieRF_model1)
+movieRF_model1
 #Call:
 #  randomForest(formula = Success_2_to_1 ~ ., data = movieRF_train,      importance = TRUE, proximity = TRUE, do.trace = 100) 
 #Type of random forest: classification
@@ -49,45 +49,38 @@ predTrain <- predict(movieRF_model2, movieRF_train, type = "class")
 confusionMatrix(predTrain, movieRF_train$Success_2_to_1)
 # Checking classification accuracy
 table(predTrain, movieRF_train$Success_2_to_1)
-#predTrain             0 1
-#0.00634250826014772 1 0
-#0.00689442990343765 1 0
-#0.00696027229758088 1 0
-#0.00713663629450846 1 0
-#...
-#Don't know why the rows are not {0,1}
+#predTrain   0   1
+#        0 693  37
+#        1   0 179
 
+plot(movieRF_model2)
+tune <- tuneRF(movieRF_train[,-10], movieRF_train[,10], stepFactor = 0.05, plot = TRUE, ntreeTry = 200, trace = TRUE, improve = 0.05)
 
-plot(movieRF_model1)
-tune <- tuneRF(movieRF_train[,-10], movieRF_train[,10], stepFactor = 0.05, plot = TRUE, ntreeTry = 300, trace = TRUE, improve = 0.05)
-predTest <- predict(movie_model2, movieRF_test, type = "class")
-
+predTest <- predict(movieRF_model2, movieRF_test, type = "class")
+confusionMatrix(predTest, movieRF_test$Success_2_to_1)
 hist(treesize(movieRF_model2))
      
 # Checking classification accuracy
-mean(predTest == movie_test$Success_2_to_1)   #0 <- most movies are not successful?              
-table(predTest,movie_test$Success_2_to_1)
-#same problem as above
-#predTest             0 1
-#0.0118822864096765 0 1
-#0.0211945533111119 1 0
-#0.0242563201430816 1 0
-#0.0253642016606116 1 0
-#...
+mean(predTest == movieRF_test$Success_2_to_1)             
+#0.7444934 (accuracy)
+table(predTest,movieRF_test$Success_2_to_1)
+#predTest   0   1
+#       0 166  51
+#       1   7   3
 
-importance(movie_model2)        
-varImpPlot(movie_model2)
-#                     IncMSE IncNodePurity
-#actorRank        -3.050793      5.136868
-#runtime          11.938531     34.108992
-#ProductionBudget 40.712307     39.409708
-#quarter          -0.110570     10.004709
-#drama            13.435345      4.284179
-#thriller          4.140650      3.483759
-#nonfiction        6.542595      3.117175
-#action           14.151061      3.924420
-#amusement         6.972070      4.071059
-#Any idea how to interpret it?
+importance(movieRF_model2)        
+varImpPlot(movieRF_model2)
+#                          0           1 MeanDecreaseAccuracy MeanDecreaseGini
+#actorRank        -7.1781476  3.79517865          -4.59061668        13.828418
+#runtime          -0.0378661 -0.08332498          -0.03114362        80.485687
+#ProductionBudget 12.8477950 10.88192729          17.14969898        92.994194
+#quarter          -3.0645311 -2.65150970          -4.03158775        25.012813
+#drama            11.1042583 -2.12511177           9.18549258        10.600449
+#thriller         -1.6064444  7.28097621           2.15491026         8.854674
+#nonfiction       -2.7103323  5.01407009           0.70272315         7.066349
+#action           -1.3137347  8.31262629           2.67185665         9.437411
+#amusement        -0.6588842 -4.16097994          -2.83307362        10.055188
+
 #IncMSE: tests how worse the model performs without each variable (higher rank means more important)
 #IncNodePurity: measures how pure the nodes at the end of the tree without each variable (higher rank means higher contribution as paramters)
 
@@ -98,12 +91,19 @@ varUsed(movieRF_model2)
 #partial dependence plot
 partialPlot(movieRF_model2, movieRF_train, actorRank, "1")
 partialPlot(movieRF_model2, movieRF_train, runtime, "1")
+partialPlot(movieRF_model2, movieRF_train, ProductionBudget, "1")
+partialPlot(movieRF_model2, movieRF_train, quarter, "1")
+partialPlot(movieRF_model2, movieRF_train, drama, "1")
+partialPlot(movieRF_model2, movieRF_train, thriller, "1")
+partialPlot(movieRF_model2, movieRF_train, nonfiction, "1")
+partialPlot(movieRF_model2, movieRF_train, action, "1")
+partialPlot(movieRF_model2, movieRF_train, amusement, "1")
 
 #read single tree
 getTree(movieRF_model2, 1, labelVar = TRUE)
 
 #multi-dimensional scaling plot of proximity matrix
-MDSplot(movieRF_model1, movieRF_train$Success_2_to_1)
+MDSplot(movieRF_model2, movieRF_train$Success_2_to_1)
 
 #function to find the best paramaters
 a=c()
