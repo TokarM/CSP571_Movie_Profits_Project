@@ -11,8 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 df <- read.csv("/Users/nick/Desktop/CSP571_Movie_Profits_Project/final_dataset.csv")
-df_model <- df[c("actorRank", "runtime", "ProductionBudget", "quarter", "drama", "thriller", "nonfiction", "action", "amusement", "Success_2_to_1")]
-df_continuous <- df[c("runtime", "ProductionBudget", "DomesticGross")]
+df_model <- df[c("actorRank","runtime", "ProductionBudget","quarter", "drama", "action", "amusement", "Success_1_to_1")]
+df_continuous <- df[c("runtime", "ProductionBudget")]
 ```
 
 ## Including Plots
@@ -33,10 +33,10 @@ df_model$quarter <- NULL
 
 ```{r}
 
-set.seed(1000)
+set.seed(123)
 library('caret')
 library('neuralnet')
-inTrain <- createDataPartition(y = df_model[,'Success_2_to_1'], list = FALSE, p = 0.8)
+inTrain <- createDataPartition(y = df_model[,'Success_1_to_1'], list = FALSE, p = 0.8)
 train <- df_model[inTrain,]
 test <- df_model[-inTrain,]
 
@@ -45,21 +45,20 @@ test <- df_model[-inTrain,]
 library(neuralnet)
 max_p <- 0
 best_parameters <- c()
-nn <- neuralnet(Success_2_to_1 ~ ., data=train, hidden=c(5,5), stepmax = 500000, rep=5, linear.output=FALSE, threshold=0.05)
+nn <- neuralnet(Success_1_to_1 ~ ., data=train, hidden=c(5,5), stepmax = 500000, rep=5, linear.output=FALSE, threshold=0.03)
 nn$result.matrix
 plot(nn)
 
 temp_test <- test
-temp_test$Success_2_to_1 <- NULL
+temp_test$Success_1_to_1 <- NULL
 
 nn.results <- compute(nn, temp_test)
-results <- data.frame(actual=test$Success_2_to_1, prediction=nn.results$net.result)
+results <- data.frame(actual=test$Success_1_to_1, prediction=nn.results$net.result)
 
 roundedresults<-sapply(results,round,digits=0)
 roundedresultsdf=data.frame(roundedresults)
 attach(roundedresultsdf)
 table(actual,prediction)
-
 
 ```
 
@@ -80,7 +79,15 @@ table(actual,prediction)
 ```
 
 
+```{r}
+df_model <- df[c("ProductionBudget", "actorRank", "quarter", "drama", "nonfiction", "action", "amusement", "earnings_percent")]
+model <- lm(earnings_percent ~ (.)^3, data = df_model)
+summary(model)
 
+library(rms)
+ols.full <- ols(earnings_percent ~ ., data = df_model)
+fastbw(ols.full, rule = "p")
+```
 
 
 

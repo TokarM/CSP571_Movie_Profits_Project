@@ -5,7 +5,7 @@ head(movie)
 #movie$ScaledProductionBudget <- scale(movie$ProductionBudget)
 
 #Ranking the quarter variable 
-#set.seed(123)
+set.seed(123)
 library('caret')
 movie$quarter <- ifelse(movie$quarter == "Q1",1, ifelse(movie$quarter =="Q2", 2, ifelse(movie$quarter =="Q3", 3, ifelse(movie$quarter == "Q4", 4,movie$quarter))))
 movie$quarter <- as.numeric(movie$quarter)
@@ -21,7 +21,8 @@ movie[c("runtime", "ProductionBudget")] <- df_scaled_cont
 
 #We'll do stratified sampling to split our data into training and test sets
 targetVar <- 'Success_1_to_1'
-movieLR <- movie[, c('runtime','ProductionBudget', 'drama', 'action', 'Success_1_to_1')]
+movieLR <- movie[, c('runtime', 'ProductionBudget', 'drama', 'action', 'amusement', 'Success_1_to_1')]
+
 inTrain <- createDataPartition(y = movieLR[,targetVar], list = FALSE, p = .8)
 trainData <- movieLR[inTrain,]
 testData <- movieLR[-inTrain,]
@@ -42,7 +43,7 @@ hist(predicted)
 install.packages("InformationValue")
 library(InformationValue)
 optCutOff <- optimalCutoff(testData$Success_1_to_1, predicted)[1] 
-
+print(optCutOff)
 #Model Diagnostics
 summary(logitModel)
 
@@ -111,3 +112,4 @@ summary(deviance)
 aic<- 2 * length(logitModel$coefficients) - 2*logLik(logitModel)
 aic
 AIC(logitModel)
+
