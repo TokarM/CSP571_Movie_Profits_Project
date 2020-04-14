@@ -62,10 +62,13 @@ mean(success.pred == testData$Success_1_to_1)
 mean(optCutOff.success.pred == testData$Success_1_to_1)  
 
 #Confusion matrix to evaluate how good our results are
-confusionMatrix(testData$Success_1_to_1, success.pred)
+check_acc <- as.data.frame(testData$Success_1_to_1)
+check_acc['actual'] <- as.data.frame(testData$Success_1_to_1)
+check_acc['prediction'] <- as.factor(success.pred)
+caret::confusionMatrix(data=check_acc$prediction, reference=check_acc$actual)
 
-
-confusionMatrix(testData$Success_1_to_1, optCutOff.success.pred)
+check_acc['opt_prediction'] <- as.factor(optCutOff.success.pred)
+caret::confusionMatrix(data=check_acc$opt_prediction, reference=check_acc$actual)
 
 
 #Missclassification Error
@@ -100,7 +103,7 @@ llcomponents <- function(y, predicted.y){
   return(y*log(predicted.y) + (1-y)*log(1-predicted.y))
 }
 
-xVars <- c('runtime','ProductionBudget', 'drama', 'action')
+xVars <- c( 'runtime', 'ProductionBudget', 'drama', 'action', 'amusement')
 y <- trainData[,targetVar]
 predicted.y <- predict(logitModel, newdata = trainData[,xVars], type='response')
 
