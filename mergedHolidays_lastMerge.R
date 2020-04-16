@@ -4,7 +4,7 @@ primary <- read.csv('final_with_holidays_sunny.csv', stringsAsFactors = F)
 
 colnames(secondary)
 tertiary <- secondary[, c(2, 31:51)]
-
+colnames(tertiary)
 nrow(primary)
 nrow(secondary)
 colnames(primary)
@@ -17,6 +17,6 @@ colnames(merged)
 
 
 
-final <- merged[, c(33,1,4:32,34:54)]
+final <- merged[, c(32,1,4:31,33:53)]
 
 write.csv(final,"true_final_dataset.csv")

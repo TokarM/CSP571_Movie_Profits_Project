@@ -8,14 +8,14 @@ primary$release_date <-as.Date(primary$release_date)
 str(holidays)
 holidays$FullDate <- as.Date(holidays$FullDate)
 
-primary$twoMonths <- primary$release_date + 60
+primary$oneMonth <- primary$release_date + 30
 
 hist(final$holidays)
 primary$holidays <- 0
 
 for(i in 1:nrow(primary)){
   temp <- holidays[which(holidays$FullDate >= primary[i, 'release_date']),]
-  temp2 <- temp[which(temp$FullDate <= primary[i, 'twoMonths']),]
+  temp2 <- temp[which(temp$FullDate <= primary[i, 'oneMonth']),]
   primary$holidays[i] <- nrow(temp2)
 }
 
@@ -28,5 +28,7 @@ for (i in 1:nrow(final)){
     final$success_1_to_1[i] <- 1
   }
 }
+colnames(final)
+final <- final[, c(1:29, 31:32)]
 
 write.csv(final,"final_with_holidays_sunny.csv")
