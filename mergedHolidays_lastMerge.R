@@ -17,6 +17,9 @@ colnames(merged)
 
 
 
+
 final <- merged[, c(32,1,4:31,33:53)]
+final <- final[!duplicated(final$cleaned.title), ]
+nrow(final)
 
 write.csv(final,"true_final_dataset.csv")

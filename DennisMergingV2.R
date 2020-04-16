@@ -71,7 +71,7 @@ hist(v5$DomesticGross)
 sapply(v5, function(y) sum(length(which(is.na(y)))))
 colnames(v5)
 
-final_dataset <- subset(v5, select = c("original_title", "id", "release_date", "Actor", "Director", "actorMovieCount",
+final_dataset <- subset(v5, select = c("cleaned.title", "id", "release_date", "Actor", "Director", "actorMovieCount",
                                        "directorMovieCount","runtime", "ProductionBudget", "DomesticGross",
                                        "quarter", "animation", "comedy", "family", "adventure", "fantasy", 
                                        "romance", "drama","action", "crime", "thriller", "horror", "history",
