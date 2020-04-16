@@ -2,6 +2,12 @@
 
 df1 <- read.csv('/Users/Sunny/Github/CSP571_Movie_Profits_Project/final_dataset.csv', stringsAsFactors = T)
 
+str(df1)
+df1$Success_2_to_1 <- 0
+df1[,'Success_2_to_1'][df1$earnings_percent > 0] <- 1
+
+summary(df1)
+
 ##Extract categorical variables
 df2 <- df1[,c('release_date', 'Success_2_to_1', 'quarter', 'actorRank', 'drama', 
               'thriller', 'nonfiction', 'action', 'amusement')]
@@ -46,7 +52,7 @@ plot(num_centers[-1,], type = 'l', main = 'Total Within SS for K clusters',
 ##explains less and less of the variance within the data.
 
 ##Implementing Final Kmeans model
-final_kmeans <- kmeans(x = train_set, centers = 7, nstart = 3, iter.max = 15)
+final_kmeans <- kmeans(x = train_set, centers = 12, nstart = 3, iter.max = 15)
 training[, 'Cluster'] <- final_kmeans$cluster
 final_kmeans$betweenss
 
