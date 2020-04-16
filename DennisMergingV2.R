@@ -21,6 +21,8 @@ ranking$Name <- gsub(searchString, replacementString, ranking$Name)
 cast$Actor <- trimws(cast$Actor)
 cast$Actor <- gsub(searchString, replacementString, cast$Actor)
 
+cast$Director <- trimws(cast$Director)
+cast$Director <- gsub(searchString, replacementString, cast$Director)
 
 v1_movie_meta<-merge(primary,cast, by='id')
 v2_movie_meta<-merge(v1_movie_meta,budgets,by.x='cleaned.title',by.y='MovieName', all=FALSE)
@@ -32,15 +34,25 @@ v3_movie_meta$release_date <- as.Date(v3_movie_meta$release_date)
 v3_sorted <- v3_movie_meta[order(v3_movie_meta$release_date), ]
 ##Add new column
 v3_sorted$actorMovieCount <- 0
+v3_sorted$directorMovieCount <- 0
 ##Remove entries with no actors
 v4_sorted <- v3_sorted[!is.na(v3_sorted$Actor), ]
+v4_sorted <- v4_sorted[!is.na(v4_sorted$Director), ]
 
 
 for (actor in unique(v4_sorted$Actor)){
-  actMovie <- v4_sorted[which(v3_sorted$Actor == actor),]
+  actMovie <- v4_sorted[which(v4_sorted$Actor == actor),]
   for (i in 1:nrow(actMovie)){
-    num <- nrow(actMovie)
+    num <- nrow(actMovie) - i
     v4_sorted[which(v4_sorted$Actor == actor),]$actorMovieCount[i] <- num
+  }
+}
+
+for (dir in unique(v4_sorted$Director)){
+  dirMovie <- v4_sorted[which(v4_sorted$Director == dir),]
+  for (i in 1:nrow(dirMovie)){
+    num <- nrow(dirMovie) - i
+    v4_sorted[which(v4_sorted$Director == dir),]$directorMovieCount[i] <- num
   }
 }
 
@@ -58,11 +70,10 @@ hist(v5$DomesticGross)
 sapply(v5, function(y) sum(length(which(is.na(y)))))
 colnames(v5)
 
-final_dataset <- subset(v5, select = c("original_title", "id", "release_date", "Actor", "actorMovieCount",
-                                       "runtime", "ProductionBudget", "DomesticGross",
+final_dataset <- subset(v5, select = c("original_title", "id", "release_date", "Actor", "Director", "actorMovieCount",
+                                       "directorMovieCount","runtime", "ProductionBudget", "DomesticGross",
                                        "quarter", "animation", "comedy", "family", "adventure", "fantasy", 
                                        "romance", "drama","action", "crime", "thriller", "horror", "history",
                                        "mystery", "war", "music", "documentary", "western", "scifi"))
-
 
 write.csv(final_dataset,"near_final_dataset.csv")
