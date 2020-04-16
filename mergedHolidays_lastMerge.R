@@ -7,7 +7,7 @@ tertiary <- secondary[, c(2, 31:51)]
 
 nrow(primary)
 nrow(secondary)
-
+colnames(primary)
 head(secondary, 1)
 
 merged <-merge(primary,tertiary,by.x='id',by.y='id', all.x=TRUE)
@@ -17,6 +17,6 @@ colnames(merged)
 
 
 
-final <- merged[, c(32,1,4:31,33:53)]
+final <- merged[, c(33,1,4:32,34:54)]
 
 write.csv(final,"true_final_dataset.csv")

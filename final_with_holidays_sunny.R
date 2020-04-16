@@ -1,5 +1,5 @@
 setwd('/Users/Sunny/Github/CSP571_Movie_Profits_Project')
-primary <- read.csv('near_final_dataset_director.csv', stringsAsFactors = F)
+primary <- read.csv('near_final_dataset.csv', stringsAsFactors = F)
 holidays <- read.csv('US_holidays_2000_2017.csv', stringsAsFactors = F)
 
 str(primary)

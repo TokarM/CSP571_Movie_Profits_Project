@@ -2,7 +2,7 @@
 
 df1 <- read.csv('/Users/Sunny/Github/CSP571_Movie_Profits_Project/final_dataset.csv', stringsAsFactors = T)
 
-str(df1)
+
 df1$Success_2_to_1 <- 0
 df1[,'Success_2_to_1'][df1$earnings_percent > 0] <- 1
 
