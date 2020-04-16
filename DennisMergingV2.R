@@ -38,7 +38,8 @@ v3_sorted$directorMovieCount <- 0
 ##Remove entries with no actors
 v4_sorted <- v3_sorted[!is.na(v3_sorted$Actor), ]
 v4_sorted <- v4_sorted[!is.na(v4_sorted$Director), ]
-
+v4_sorted[which(v4_sorted$Actor == '<U+043C><U+043E><U+0440><U+0440><U+0438><U+0441><U+0447><U+0435><U+0441><U+0442><U+043D><U+0430><U+0442>'),]$Actor <-'morrischestnut' 
+v4_sorted[which(v4_sorted$Actor == 'morrischestnut'),]
 
 for (actor in unique(v4_sorted$Actor)){
   actMovie <- v4_sorted[which(v4_sorted$Actor == actor),]
