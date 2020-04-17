@@ -17,7 +17,7 @@ for(i in 1:nrow(primary)){
   primary$numOfHolidays[i] <- nrow(temp2)
 }
 
-final <- primary[, -30]
+final <- primary
 
 
 #############Arika's code
@@ -39,6 +39,6 @@ for (i in 1:nrow(holidays)){
 }
 
 colnames(final)
-final_df <- final[,c(2:32, 34:55)]
+final_df <- final[,c(2:33, 35:56)]
 
 write.csv(final_df,"5_merged_with_holidays.csv")
