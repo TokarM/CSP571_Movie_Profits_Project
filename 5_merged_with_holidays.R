@@ -8,7 +8,6 @@ holidays$FullDate <- as.Date(holidays$FullDate)
 
 primary$oneMonth <- primary$release_date + 30
 
-hist(final$holidays)
 primary$numOfHolidays <- 0
 
 for(i in 1:nrow(primary)){
@@ -19,13 +18,27 @@ for(i in 1:nrow(primary)){
 
 final <- primary
 
+##library(tidyverse)
 
-#############Arika's code
+##cleaning
+holidays$HolidayName <- tolower(holidays$HolidayName)
+holidays$HolidayName <- gsub('[[:punct:]]+',' ',holidays$HolidayName)
+searchString <- ' '
+replacementString <- ''
+
+holidays$HolidayName <- trimws(holidays$HolidayName)
+holidays$HolidayName <- gsub(searchString, replacementString, holidays$HolidayName)
+
 holidaylist <- unique(holidays$HolidayName)
+
+
+
+##Create holiday columns
 for(i in holidaylist){
   final[i] <- 0
 }
 
+##Populate the holiday fields
 for (i in 1:nrow(holidays)){
   holidayname <- holidays$HolidayName[i]
   for (j in 1:nrow(final)){
@@ -39,6 +52,6 @@ for (i in 1:nrow(holidays)){
 }
 
 colnames(final)
-final_df <- final[,c(2:33, 35:56)]
+final_df <- final[,c(3:33, 35:56)]
 
 write.csv(final_df,"5_merged_with_holidays.csv")
