@@ -19,13 +19,12 @@ movie <- movie[which(movie$budget > 1),]
 #movie$directorEarnings <- NULL
 
 movie$X <- NULL
-movie$id <- NULL
-movie$release_date <- NULL
-movie$Actor <- NULL
-movie$Director <- NULL
-movie$revenue <- NULL
-movie$related_holiday <- NULL
-
+#movie$id <- NULL
+#movie$release_date <- NULL
+#movie$Actor <- NULL
+#movie$Director <- NULL
+#movie$revenue <- NULL
+#movie$related_holiday <- NULL
 
 write.csv(movie, '/Users/nick/Desktop/CSP571_Movie_Profits_Project/no_outliers_final_dataset.csv')
 

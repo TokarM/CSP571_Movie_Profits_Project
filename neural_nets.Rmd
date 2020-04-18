@@ -10,9 +10,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ## R Markdown
 
 ```{r}
-df <- read.csv("/Users/nick/Desktop/CSP571_Movie_Profits_Project/final_dataset.csv")
-df_model <- df[c("runtime", "ProductionBudget", "drama", "action", "amusement", "Success_1_to_1")]
-df_continuous <- df[c("runtime", "ProductionBudget")]
+df <- read.csv("/Users/nick/Desktop/CSP571_Movie_Profits_Project/logistic_final_dataset.csv")
+df
+#df_model <- df[c("runtime", "ProductionBudget", "drama", "action", "amusement", "Success_1_to_1")]
+df_continuous <- df[c("runtime", "budget")]
+df$X.1 <- NULL
+df$X <- NULL
+
 ```
 
 ## Including Plots
@@ -25,7 +29,7 @@ maxs <- apply(df_model, 2, max)
 mins <- apply(df_model, 2, min)
 
 df_scaled_cont <- scale(df_continuous) 
-df_model[c("runtime", "ProductionBudget")] <- df_scaled_cont
+df[c("runtime", "budget")] <- df_scaled_cont
 #df_model <- fastDummies::dummy_cols(df_model, select_columns = 'quarter')
 #df_model$quarter <- NULL
 ```
@@ -36,7 +40,7 @@ df_model[c("runtime", "ProductionBudget")] <- df_scaled_cont
 set.seed(123)
 library('caret')
 library('neuralnet')
-inTrain <- createDataPartition(y = df_model[,'Success_1_to_1'], list = FALSE, p = 0.8)
+inTrain <- createDataPartition(y = df[,'success_1_to_1'], list = FALSE, p = 0.8)
 train <- df_model[inTrain,]
 test <- df_model[-inTrain,]
 
@@ -45,15 +49,15 @@ test <- df_model[-inTrain,]
 library(neuralnet)
 max_p <- 0
 best_parameters <- c()
-nn <- neuralnet(Success_1_to_1 ~ ., data=train, hidden=c(2,2), stepmax = 500000, rep=5, linear.output=FALSE, threshold=0.05)
+nn <- neuralnet(success_1_to_1 ~ ., data=train, hidden=c(5,5), stepmax = 500000, rep=5, linear.output=FALSE, threshold=0.05)
 nn$result.matrix
 plot(nn)
 
 temp_test <- test
-temp_test$Success_1_to_1 <- NULL
+temp_test$success_1_to_1 <- NULL
 
 nn.results <- compute(nn, temp_test)
-results <- data.frame(actual=test$Success_1_to_1, prediction=nn.results$net.result)
+results <- data.frame(actual=test$success_1_to_1, prediction=nn.results$net.result)
 
 roundedresults<-sapply(results,round,digits=0)
 roundedresultsdf=data.frame(roundedresults)
