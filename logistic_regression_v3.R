@@ -1,5 +1,5 @@
 #Reading data from csv file
-movie <- read.csv('/Users/swath/CSP571_Movie_Profits_Project/logistic_final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
+movie <- read.csv('/Users/nick/Desktop/CSP571_Movie_Profits_Project/elastic_net_final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
 head(movie)
 movie$X <- NULL
 movie$X.1 <- NULL
