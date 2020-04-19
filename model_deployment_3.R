@@ -4,7 +4,7 @@ library('plumber')
 r <- plumb("/Users/nick/Desktop/CSP571_Movie_Profits_Project/model_deployment_2.R")  # Where 'plumber.R' is the location of the file shown above
 r$run(port=8000)
 
-# After starting a server run it in terminal
+# After starting a server run the following line in terminal
 
 #curl --data "budget=2500000&runtime=118&comedy=1&family=0&adventure=0&fantasy=0&drama=1&action=0&horror=0&documentary=0&scifi=0&actorMovieCount=0&directorMovieCount=1&directorEarnings=16178959&domestic=0&quarter=3&newyearsday=0&christmaseve=0" "http://localhost:8000/predict"
 
