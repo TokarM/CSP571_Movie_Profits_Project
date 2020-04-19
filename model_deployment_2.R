@@ -1,27 +1,56 @@
+
 library('plumber')
 
-load(file = '/Users/nick/Desktop/CSP571_Movie_Profits_Project/logit_model.rda')
+# Here is a path to actual model, I pushed it git as well
+RF_model <- readRDS('/Users/nick/Desktop/CSP571_Movie_Profits_Project/rf_model.rds')
+library('randomForest')
 
-
+budget <- 6000000
 runtime <- 100
-ProductionBudget <- 6000000
+comedy <- 1
+family <- 0
+adventure <- 0
+fantasy <- 0
 drama <- 0
 action <- 1
-amusement <- 1
-
+horror <- 0
+documentary <- 0
+scifi <- 1
+actorMovieCount <- 5
+directorMovieCount <- 3
+directorEarnings <- 300000
+domestic <- 0
+quarter <- 2
+newyearsday <- 0
+christmaseve <- 0
 
 #* @post /predict
-predict <- function(runtime, ProductionBudget, drama, action, amusement){
+predict <- function(budget, runtime, comedy, family, adventure, fantasy, drama, action, horror, documentary, scifi, actorMovieCount, directorMovieCount, directorEarnings, domestic, quarter,newyearsday,christmaseve)
+  {
+  budget <- as.numeric(budget)
   runtime <- as.numeric(runtime)
-  ProductionBudget <- as.numeric(ProductionBudget)
+  comedy <- as.numeric(comedy)
+  family <- as.numeric(family)
+  adventure <- as.numeric(adventure)
+  fantasy <- as.numeric(fantasy)
   drama <- as.numeric(drama)
   action <- as.numeric(action)
-  amusement <- as.numeric(amusement)
+  horror <- as.numeric(horror)
+  documentary <- as.numeric(documentary)
+  scifi <- as.numeric(scifi)
+  actorMovieCount <- as.numeric(actorMovieCount)
+  directorMovieCount <- as.numeric(directorMovieCount)
+  directorEarnings <- as.numeric(directorEarnings)
+  domestic <- as.numeric(domestic)
+  quarter <- as.numeric(quarter)
+  newyearsday <- as.numeric(newyearsday)
+  christmaseve <- as.numeric(christmaseve)
   
-  data <- data.frame(runtime, ProductionBudget, drama, action, amusement)
-  yhat <-predict.glm(logitModel, data, type="response")
-  optCutOff <- 0.4906
-  pred <- ifelse(yhat > optCutOff,1,0)
-  string <- paste("Probability of success is ", yhat, " , Model prediction is ", pred)
-  return(string)
+  df <- data.frame(budget, runtime, comedy, family, adventure, fantasy, drama, action, horror, documentary,
+                     scifi, actorMovieCount, directorMovieCount, directorEarnings, domestic, quarter, newyearsday, christmaseve)
+  
+  yhat <- predict(RF_model, df)
+  
+  string <- paste("Model prediction is ", yhat)
+  return(as.numeric(yhat))
 }

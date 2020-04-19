@@ -4,7 +4,7 @@ library(caret)
 library(e1071)
 set.seed(123)
 
-setwd('/Users/kayinho/Documents/CSP571_Movie_Profits_Project/')
+setwd('/Users/nick/Desktop/CSP571_Movie_Profits_Project')
 movie <- read.csv("elastic_net_final_dataset.csv", header = TRUE, stringsAsFactors = FALSE)
 movie$success_1_to_1 <- as.factor(movie$success_1_to_1)
 splitVar <- 'success_1_to_1'
@@ -19,6 +19,9 @@ movieRF_test <- movieRF[-movieRF_inTrain,]
 #ntree: 500; mtry: 3 give the best accuracy: 0.7512690 
 movieRF_model <- randomForest(success_1_to_1 ~ ., data = movieRF_train, ntree = 500, mtry = 3, importance = TRUE, proximity=TRUE, do.trace = 100)
 movieRF_model
+
+#Model creation file
+#saveRDS(movieRF_model, '/Users/nick/Desktop/CSP571_Movie_Profits_Project/rf_model.rds')
 plot(movieRF_model)
 
 ###########classfication###############
@@ -27,7 +30,7 @@ confusionMatrix(predTrain, movieRF_train$success_1_to_1, positive = "1")
 # Checking classification accuracy
 table(predTrain, movieRF_train$success_1_to_1)
 
-predTest <- predict(movieRF_model, movieRF_test, type = "class")
+predTest <- predict(movieRF_model, movieRF_test)
 confusionMatrix(predTest, movieRF_test$success_1_to_1, positive = "1") 
 hist(treesize(movieRF_model1))
 
