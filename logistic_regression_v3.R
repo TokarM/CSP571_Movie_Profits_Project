@@ -1,5 +1,5 @@
 #Reading data from csv file
-movie <- read.csv('/Users/nick/Desktop/CSP571_Movie_Profits_Project/elastic_net_final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
+movie <- read.csv('/Users/swathi/CSP571_Movie_Profits_Project/elastic_net_final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
 head(movie)
 movie$X <- NULL
 movie$X.1 <- NULL
@@ -75,25 +75,21 @@ misClassError(testData$success_1_to_1, predicted, threshold = optCutOff)
 misClassError(testData$success_1_to_1, predicted, threshold = 0.5)
 
 #Precision, Recall and F1-Score claculation for thershold 0.5
-precision_0.5 <- specificity(testData$success_1_to_1, predicted, threshold = 0.5)
-print(paste0("Precision for 0.5 thershold: ", precision_0.5))
+confusion_0.5 <- caret::confusionMatrix(data=check_acc$opt_prediction, reference=check_acc$actual)
+print(paste0("Precision for 0.5 thershold: ", confusion_0.5$byClass[5]))
 
-recall_0.5 <- sensitivity(testData$success_1_to_1, predicted, threshold = 0.5)
-print(paste0("Recall for 0.5 thershold: ", recall_0.5))
+print(paste0("Recall for 0.5 thershold: ", confusion_0.5$byClass[6]))
 
-F1_score_0.5 <- (2 * precision_0.5 * recall_0.5)/(precision_0.5 + recall_0.5)
-print(paste0("F1-Score for 0.5 thershold: ", F1_score_0.5))
+print(paste0("F1-Score for 0.5 thershold: ", confusion_0.5$byClass[7]))
 
 
 #Precision, Recall and F1-Score claculation for thershold optCutOff
-precision_optCutOff <- specificity(testData$success_1_to_1, predicted, threshold = optCutOff)
-print(paste0("Presicion for optimal cutoff thershold: ", precision_optCutOff))
+confusion_optCutoff <- caret::confusionMatrix(data=check_acc$opt_prediction, reference=check_acc$actual)
+print(paste0("Presicion for optimal cutoff thershold: ", confusion_optCutoff$byClass[5]))
 
-recall_optCutOff <- sensitivity(testData$success_1_to_1, predicted, threshold = optCutOff)
-print(paste0("Recall for optimal cutoff thershold: ", recall_optCutOff))
+print(paste0("Recall for optimal cutoff thershold: ", confusion_optCutoff$byClass[6]))
 
-F1_score_optCutOff <- (2 * precision_optCutOff * recall_optCutOff)/(precision_optCutOff + recall_optCutOff)
-print(paste0("F1-Score for optimal cutoff thershold: ", F1_score_optCutOff))
+print(paste0("F1-Score for optimal cutoff thershold: ", confusion_optCutoff$byClass[7]))
 
 
 #The ROC curve
