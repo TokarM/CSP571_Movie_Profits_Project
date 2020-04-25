@@ -1,113 +1,102 @@
 #KNN
+rm(list = ls())
+library('caret')
 
-df1 <- read.csv('/Users/Sunny/Github/CSP571_Movie_Profits_Project/final_dataset.csv', stringsAsFactors = T)
+df1 <- read.csv('/Users/Sunny/Github/CSP571_Movie_Profits_Project/5_merged_with_holidays.csv', stringsAsFactors = T)
 
-##Extract categorical variables
-df2 <- df1[,c('release_date', 'Success_1_to_1', 'quarter', 'actorRank', 'drama', 
-              'thriller', 'nonfiction', 'action', 'amusement')]
+
+##Convert classification to factors
+df1$success_1_to_1 <- as.factor(df1$success_1_to_1)
+
+##Extract categorical variables and other variables that we do not want to standardize
+df2 <- df1[,c(32, 7:24, 30, 34:53)]
 
 ##Standardize numerical columns
-df3 <- scale(df1[, c('runtime', 'ProductionBudget')])
+df3 <- scale(df1[, c(5:6, 27:29, 31, 33)])
 
 ##Merge the two dataframes
 df4 <- cbind(df2, df3)
 
-##Convert date column and sort by date
-df4$release_date <- as.Date(df4$release_date)
-df5 <- df4[order(df4$release_date), -1]
-
-##Convert quarter from factor to numeric
-df5$quarter <- as.numeric(df5$quarter)
-
 ##Partition into 80%, and 20% test, constrained to its chronological ordering
-splitRow <- as.integer(nrow(df5)*0.8)
-train <- df5[c(1:splitRow), ]
-train_set <- train[, -1]
-train_label <- train[, 1]
-test <- df5[c((splitRow+1):nrow(df5)), ]
-test_set <- test[, -1]
-test_label <- test[, 1]
+inTrain <- createDataPartition(y = df4[,'success_1_to_1'], list = FALSE, p = .8)
+train <- df4[inTrain,]
+test <- df4[-inTrain,]
+
+train_set <- train[, -c(1)]
+train_label_class <- train[, 1]
+test <- df5[c((splitRow+1):nrow(df5)),]
+test_set <- test[, -c(1)]
+test_label_class <- test[, 1]
 
 ##Error Check for row equality
-stopifnot(nrow(train_set) + nrow(test_set) == nrow(df5))
-
-##Using the caret package
-library('caret')
+stopifnot(nrow(train) + nrow(test) == nrow(df4))
 
 ##Training the model using the caret package and finding the optimal k for # of neighbors.
 ##trControl allows the user to control the resampling criteria. We are using 10-fold cross validation.
 ##tuneGrid allows the user to specify the range of k's to test for the best model
-model_unweighted <- train(
-  Success_1_to_1 ~., 
-  data = train, 
-  method = "knn",
-  trControl = trainControl("cv", number = 10),
-  tuneGrid = expand.grid(k = c(15:80)))
-##K=24 is optimal
-plot(model_unweighted)
-model_unweighted$bestTune
 
 #Weighted KNN Algorithms
 
-##Rectangular
+##Rectangular / Non-weighted
 model_rectangular <- train(
-  Success_1_to_1 ~., 
+  success_1_to_1 ~., 
   data = train, 
   method = "kknn",
   trControl = trainControl("cv", number = 10),
-  tuneGrid = expand.grid(kmax = 15:150,
+  tuneGrid = expand.grid(kmax = 15:50,
                          distance = 2,
                          kernel = c('rectangular')))
-##K=93 is optimal
+##K=15 is optimal
 plot(model_rectangular)
 model_rectangular$bestTune
 
 ##Triangular
 model_triangular <- train(
-  Success_1_to_1 ~., 
+  success_1_to_1 ~., 
   data = train, 
   method = "kknn",
   trControl = trainControl("cv", number = 10),
-  tuneGrid = expand.grid(kmax = 15:150,
+  tuneGrid = expand.grid(kmax = 15:50,
                          distance = 2,
                          kernel = c('triangular')))
-##K=132 is optimal
+##K=33 is optimal
 plot(model_triangular)
 model_triangular$bestTune
 
 ##Gaussian
 model_gaussian <- train(
-  Success_1_to_1 ~., 
+  success_1_to_1 ~., 
   data = train, 
   method = "kknn",
   trControl = trainControl("cv", number = 10),
-  tuneGrid = expand.grid(kmax = 15:150,
+  tuneGrid = expand.grid(kmax = 15:50,
                          distance = 2,
                          kernel = c('gaussian')))
-##K=136 is optimal
+##K=16 is optimal
 plot(model_gaussian)
 model_gaussian$bestTune
 
 ##Epanechnikov
 model_epan <- train(
-  Success_1_to_1 ~., 
+  success_1_to_1 ~., 
   data = train, 
   method = "kknn",
   trControl = trainControl("cv", number = 10),
-  tuneGrid = expand.grid(kmax = 15:150,
+  tuneGrid = expand.grid(kmax = 15:50,
                          distance = 2,
                          kernel = c('epanechnikov')))
-##K=115 is optimal
+##K=26 is optimal
 plot(model_epan)
 model_epan$bestTune
 
 ##Which model has the lowest RMSE?
-min(model_unweighted$results$RMSE)
-min(model_rectangular$results$RMSE)
-min(model_triangular$results$RMSE)
-min(model_gaussian$results$RMSE)
-min(model_epan$results$RMSE)
-##Gaussian weighted with K=136
+mean(model_unweighted$results$Accuracy)
+mean(model_rectangular$results$Accuracy)
+
+min(model_triangular$results$Accuracy)
+min(model_gaussian$results$Accuracy)
+min(model_epan$results$Accuracy)
+##Epanechnikov with 26 has the highest accuracy. We will use it
 
 ##Let's predict using the test set
 pred_unweighted <- predict.train(object = model_unweighted, test_set)
@@ -117,18 +106,19 @@ pred_gaussian <- predict.train(object = model_gaussian, test_set)
 pred_epan <- predict.train(object = model_epan, test_set)
 
 ##Let's evaluate each model's performance
-test_label_factor <- as.factor(test_label) ##Factorize the test labels so it can be used
+test_label_factor <- as.factor(test_label_class) ##Factorize the test labels so it can be used
 df_unweighted <- as.factor(round(pred_unweighted))
 df_rectangular <- as.factor(round(pred_rectangular))
 df_triangular <- as.factor(round(pred_triangular))
 df_gaussian <- as.factor(round(pred_gaussian))
 df_epan <- as.factor(round(pred_epan))
 
-confusionMatrix(df_unweighted, reference = test_label_factor, positive = '1') ##0.5598
-confusionMatrix(df_rectangular, reference = test_label_factor, positive = '1') ##0.5598
-confusionMatrix(df_triangular, reference = test_label_factor, positive = '1') ##0.5598
-confusionMatrix(df_gaussian, reference = test_label_factor, positive = '1') ##0.5646
-confusionMatrix(df_epan, reference = test_label_factor, positive = '1') ##0.555
+##NO INFO RATE = 0.5083
+confusionMatrix(pred_unweighted, reference = test_label_factor, positive = '1') ##0.7044
+confusionMatrix(pred_rectangular, reference = test_label_factor, positive = '1') ##0.6943
+confusionMatrix(pred_triangular, reference = test_label_factor, positive = '1') ##0.6993
+confusionMatrix(pred_gaussian, reference = test_label_factor, positive = '1') ##0.6926
+confusionMatrix(pred_epan, reference = test_label_factor, positive = '1') ##0.6976
 
 ##Gaussian, indeed, has best performance
 
@@ -145,137 +135,8 @@ gauss_dist <- train(
 plot(gauss_dist)
 gauss_dist$bestTune
 
-##But performance still isn't very good. Let us reduce 
 
-model5 <- train(
-  Success_1_to_1 ~., 
-  data = train, 
-  method = "kknn",
-  trControl = trainControl("cv", number = 10),
-  tuneGrid = expand.grid(kmax = 101:110,
-                         distance = 2,
-                         kernel = c('rectangular', 'triangular', 'gaussian', 'epanechnikov')
-  )
-)
-plot(model5)
-model5$bestTune
-
-model6 <- train(
-  Success_1_to_1 ~., 
-  data = train, 
-  method = "kknn",
-  trControl = trainControl("cv", number = 10),
-  tuneGrid = expand.grid(kmax = 111:120,
-                         distance = 2,
-                         kernel = c('rectangular', 'triangular', 'gaussian', 'epanechnikov')
-  )
-)
-plot(model6)
-model6$bestTune
-
-
-min(model$results$RMSE)
-min(model1$results$RMSE)
-min(model2$results$RMSE)
-min(model3$results$RMSE)
-min(model4$results$RMSE)
-min(model5$results$RMSE)
-min(model6$results$RMSE)
-
-model_weighted <- train(
-  Success_1_to_1 ~., 
-  data = train, 
-  method = "kknn",
-  trControl = trainControl("cv", number = 10),
-  tuneGrid = expand.grid(kmax = 20:130,
-                         distance = 2,
-                         kernel = c('rectangular', 'triangular', 'gaussian', 'epanechnikov')
-  )
-)
-
-
-predictions <- predict.train(object = model, test_set)
-prediction_df <- data.frame(round(predictions))
-test_label_factor <- as.factor(test_label)
-confusionMatrix(test_predict, reference = test_label_factor, positive = '1')
-
-
-predictions1 <- predict.train(object = model1, test_set)
-prediction_df1 <- data.frame(round(predictions))
-test_predict1 <- as.factor(prediction_df1$round.predictions.)
-confusionMatrix(test_predict1, reference = test_label_factor, positive = '1')
-
-predictions2 <- predict.train(object = model2, test_set)
-prediction_df2 <- data.frame(round(predictions))
-test_predict2 <- as.factor(prediction_df2$round.predictions.)
-confusionMatrix(test_predict2, reference = test_label_factor, positive = '1')
-
-predictions3 <- predict.train(object = model3, test_set)
-prediction_df3 <- data.frame(round(predictions))
-test_predict3 <- as.factor(prediction_df3$round.predictions.)
-confusionMatrix(test_predict3, reference = test_label_factor, positive = '1')
-
-
-model2 <- train(
-  Success_1_to_1 ~., 
-  data = train, 
-  method = "kknn",
-  trControl = trainControl("cv", number = 10),
-  tuneGrid = expand.grid(kmax = 15:40,
-                         distance = 2:3,
-                         kernel = c('rectangular', 'triangular', 'gaussian', 'epanechnikov')
-  )
-)
-plot(model1)
-
-
-
-##From the model and plot, we see that k = 22 gives the best result. 
-model$bestTune
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##Further partition training set into 75% train set and 25% validation set, stratified
-library('caret')
-inTrain <- createDataPartition(y = training[,'Success_1_to_1'], list = FALSE, p = .75)
-train <- training[inTrain,]
-training_set <- training[, -1]
-validation <- training[-inTrain,]
-train_set <- train[, -1]
-train_label <- train[, 1]
-validation_set <- validation[, -1]
-validation_label <- validation[, 1]
-
-
-
+################################################################################
 ##Selecting K, determine each K's accuracy
 library('class')
 k_accuracy <- function(trainSet, trainLab, testSet, testLab){
@@ -325,49 +186,56 @@ test_label_factor <- as.factor(test_label)
 confusionMatrix(knn_predict, reference = test_label_factor)
 ##TERRIBLE
 summary(df2)
+##################################################################################
 
 ##Testing with PCA for dimensionality reduction
 library('corrplot')
-str(training)
+str(train_set)
 df5_cor <- cor(df5)
 corrplot(df5_cor)
 ##Not many strong correlations at first glance. Will try PCA anyways
 
 ##Convert datasets using PCA
-pca_training <- princomp(training[, -1])
 pca_train_set <- princomp(train_set)
-pca_validation_set <- princomp(validation_set)
 pca_test_set <- princomp(test_set)
 
 
-##First four components explain 83% of the variance
+##First seven components explain 83% of the variance
 plot(pca_train_set)
 summary(pca_train_set)
 
 
 ##Plot against each component
-train_comp <- data.frame(pca_training$scores[, 1:4])
-plot(comp, pch = 16)
+train_comp <- data.frame(pca_train_set$scores[, 1:7])
+plot(train_comp, pch = 16)
 
 ##Take the first 4 components
-training_comp <- pca_training$scores[,1:4]
-train_comp <- pca_train_set$scores[,1:4]
-validation_comp <- pca_validation_set$scores[,1:4]
-test_comp <- pca_test_set$scores[,1:4]
+train_comp <- cbind(train_label, pca_train_set$scores[,1:7])
+test_comp <- pca_test_set$scores[,1:7]
 
-##Find optimal K
-k_acc_values <- k_accuracy(train_comp, train_label, validation_comp, validation_label)
-plot(k_acc_values, type = 'l')
-k_acc_values[k_acc_values$X0.1 == max(k_acc_values$X0.1),]
+##Train model using PC
+model_pca_unweighted <- train(
+  train_label ~., 
+  data = train_comp, 
+  method = "knn",
+  trControl = trainControl("cv", number = 10),
+  tuneGrid = expand.grid(k = c(15:80)))
+##K=62 is optimal
+plot(model_pca_unweighted)
+model_pca_unweighted$bestTune
 
-##Optimal K = 10
+##Evaluate PCA and compare to unweighted with PCA
+pred_pca_unweighted <- predict.train(object = model_pca_unweighted, test_comp)
+df_pca_unweighted <- as.factor(round(pred_pca_unweighted))
+confusionMatrix(df_pca_unweighted, reference = test_label_factor, positive = '1')
+##TERRIBLE - Even worse than not having performed PCA
 
 
-##Train model
-knn_pca <- knn_predict <- knn(train = training_comp, test = test_comp, cl = training[, 1], k = 10)
+##############################################################
+##Relief Algorithm
+#install.packages("CORElearn")
+library(CORElearn)
+colnames(train)
+optimalVars <- attrEval(success_1_to_1 ~ ., data = train, estimator = "ReliefFequalK")
 
-##Evaluate
-knn_pca_predict <- as.factor(knn_pca)
-test_label_factor <- as.factor(test_label)
-confusionMatrix(knn_pca_predict, reference = test_label_factor)
-##TERRIBLE
+install.packages("dprep")
