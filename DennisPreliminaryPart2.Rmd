@@ -1,0 +1,66 @@
+---
+title: "Summary Table"
+author: "Good Movie Prophet"
+date: "4/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(readr)
+elastic_net_final_dataset <- read_csv("C:/Users/Dennis Tran/Downloads/elastic_net_final_dataset.csv")
+dataset<-elastic_net_final_dataset
+summary(dataset)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE, results = "asis"}
+library(qwraps2)
+options(qwraps2_markup = "markdown")
+args(summary_table)
+
+our_summary1 <-
+  list("Budget" =
+         list("min" = ~ min(dataset$budget),
+              "max" = ~ max(dataset$budget),
+              "mean (sd)" = ~ qwraps2::mean_sd(dataset$budget)),
+       "Actor Movie Count" =
+         list("min" = ~ min(dataset$actorMovieCount),
+              "median" = ~ median(dataset$actorMovieCount),
+              "max" = ~ max(dataset$actorMovieCount),
+              "mean (sd)" = ~ qwraps2::mean_sd(dataset$actorMovieCount)),
+       "Director Movie Count" =
+         list("min" = ~ min(dataset$directorMovieCount),
+              "median" = ~ median(dataset$directorMovieCount),
+              "max" = ~ max(dataset$directorMovieCount),
+              "mean (sd)" = ~ qwraps2::mean_sd(dataset$directorMovieCount)),
+       "Genre" =
+         list("Comedy" = ~ qwraps2::n_perc0(dataset$comedy == 1),
+              "Family"  = ~ qwraps2::n_perc0(dataset$family == 1),
+              "Adventure"  = ~ qwraps2::n_perc0(dataset$adventure == 1),
+              "Fantasy"  = ~ qwraps2::n_perc0(dataset$fantasy == 1),
+              "Drama"  = ~ qwraps2::n_perc0(dataset$drama == 1),
+              "Action"  = ~ qwraps2::n_perc0(dataset$action == 1),
+              "Horror"  = ~ qwraps2::n_perc0(dataset$horror == 1),
+              "Documentary"  = ~ qwraps2::n_perc0(dataset$documentary == 1),
+              "SciFi"  = ~ qwraps2::n_perc0(dataset$scifi == 1)
+              ))
+
+whole <- summary_table(dataset, our_summary1)
+whole
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

@@ -25,7 +25,7 @@ newyearsday <- 0
 christmaseve <- 0
 
 #* @post /predict
-predict <- function(budget, runtime, comedy, family, adventure, fantasy, drama, action, horror, documentary, scifi, actorMovieCount, directorMovieCount, directorEarnings, domestic, quarter,newyearsday,christmaseve)
+prediction <- function(budget, runtime, comedy, family, adventure, fantasy, drama, action, horror, documentary, scifi, actorMovieCount, directorMovieCount, directorEarnings, domestic, quarter,newyearsday,christmaseve)
   {
   budget <- as.numeric(budget)
   runtime <- as.numeric(runtime)
