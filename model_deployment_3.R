@@ -13,12 +13,14 @@ r$run(port=8000)
 
 # curl --data "budget=runtime=100&ProductionBudget=600000&drama=0&action=1&amusement=0" "http://localhost:8000/predict"
 
-#generate_curl = function(row){
-#  paste("curl --data ",'"budget=',row$budget,"&runtime=",row$runtime,"&comedy=",row$comedy,"&family=",row$family,"&adventure=", row$adventure,"&fantasy=", row$fantasy,"&drama=", row$drama,
-#        "&action=", row$action, "&horror=", row$horror, "&documentary=", row$documentary,"&scifi=", row$scifi, "&actorMovieCount=", row$actorMovieCount, "&directorMovieCount=", row$directorMovieCount,
-#        "&directorEarnings=", row$directorEarnings, "&domestic=", row$domestic, "&quarter=", row$quarter, "&newyearsday=", row$newyearsday, "&christmaseve=", row$christmaseve,'" "http://localhost:8000/predict"', sep='')
-#}
+new_movies <- read.csv("/Users/nick/Desktop/CSP571_Movie_Profits_Project/new_movie_2019.csv")
 
-#generate_curl(movieRF)
+generate_curl = function(row){
+  paste("curl --data ",'"name=',row$original_title, "&budget=",row$budget,"&runtime=",row$runtime,"&comedy=",row$comedy,"&family=",row$family,"&adventure=", row$adventure,"&fantasy=", row$fantasy,"&drama=", row$drama,
+        "&action=", row$action, "&horror=", row$horror, "&documentary=", row$documentary,"&scifi=", row$scifi, "&actorMovieCount=", row$actorMovieCount, "&directorMovieCount=", row$directorMovieCount,
+        "&directorEarnings=", row$directorEarnings, "&domestic=", row$domestic, "&quarter=", row$quarter, "&newyearsday=", row$newyearsday, "&christmaseve=", row$christmaseve,'" "http://localhost:8000/predict"', sep='')
+}
+
+generate_curl(new_movies[1:10,])
 
 
