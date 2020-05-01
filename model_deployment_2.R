@@ -5,6 +5,7 @@ library('plumber')
 RF_model <- readRDS('/Users/nick/Desktop/CSP571_Movie_Profits_Project/rf_model.rds')
 library('randomForest')
 
+name <- "Movie"
 budget <- 6000000
 runtime <- 100
 comedy <- 1
@@ -25,7 +26,7 @@ newyearsday <- 0
 christmaseve <- 0
 
 #* @post /predict
-prediction <- function(budget, runtime, comedy, family, adventure, fantasy, drama, action, horror, documentary, scifi, actorMovieCount, directorMovieCount, directorEarnings, domestic, quarter,newyearsday,christmaseve)
+prediction <- function(name,budget, runtime, comedy, family, adventure, fantasy, drama, action, horror, documentary, scifi, actorMovieCount, directorMovieCount, directorEarnings, domestic, quarter,newyearsday,christmaseve)
   {
   budget <- as.numeric(budget)
   runtime <- as.numeric(runtime)
@@ -52,5 +53,12 @@ prediction <- function(budget, runtime, comedy, family, adventure, fantasy, dram
   yhat <- predict(RF_model, df)
   
   string <- paste("Model prediction is ", yhat)
-  return(as.numeric(yhat))
+  if(as.numeric(yhat) == 2){
+    string = " is going to be Successfull"
+  }
+  else
+  {
+    string = " is not going to be Successfull"
+  }
+  return(paste(name, string))
 }
