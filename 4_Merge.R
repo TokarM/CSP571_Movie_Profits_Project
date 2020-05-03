@@ -105,6 +105,11 @@ v4$quarter <- factor(v4$month, levels = c('January', 'February', 'March', 'April
 ##Check for NAs
 sapply(v4, function(y) sum(length(which(is.na(y)))))
 
+##Distribution of runtime prior to mean imputation
+hist(v4$runtime, xlab = "Runtime", main = "Histogram of Runtime Prior to Mean Imputation")
+abline(v = mean(v4[!is.na(v4$runtime), 'runtime']),
+       col = "royalblue", lwd = 2)
+
 ##Replace the NAs in runtime with 0
 v4$runtime[is.na(v4$runtime)] <- 0
 
@@ -122,6 +127,11 @@ for (i in 1:nrow(v5)){
     v5$success_1_to_1[i] <- 1
   }
 }
+
+##Count Number of True Positives to calculate our precision threshold
+true_pos <- sum(v5$success_1_to_1)
+total_predicted_true <- nrow(v5)
+precision_threshold <- true_pos / total_predicted_true
 
 ##Selecting our desired columns
 colnames(v5)

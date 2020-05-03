@@ -1,8 +1,10 @@
-credits <- read_csv("C:/Users/Sunny/Github/CSP571_Movie_Profits_Project/credits.csv")
+library(tidyr)
+setwd('/Users/Sunny/Github/CSP571_Movie_Profits_Project')
+credits <- read.csv("credits.csv")
 
 #Actor cleaning
 MovieStatsChart <- separate(credits, cast, c("1", "2", "3","4", "5","Actor"), sep=', ', remove=TRUE)
-head(MovieStatsChart)
+head(MovieStatsChart, 1)
 
 df<-MovieStatsChart %>% select(`Actor`,'id')
 head(df)
