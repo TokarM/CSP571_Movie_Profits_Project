@@ -1,12 +1,20 @@
+#install.packages("InformationValue")
+#install.packages('DMwR')
+set.seed(123)
+library('caret')
+library('tidyverse')
+library(e1071)
+library(InformationValue)
+library('DMwR')
+library(MASS)
+
+
 #Reading data from csv file
-movie <- read.csv('/Users/swathi/CSP571_Movie_Profits_Project/elastic_net_final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
+movie <- read.csv('/Users/swath/CSP571_Movie_Profits_Project/elastic_net_final_dataset.csv', header = TRUE, stringsAsFactors = FALSE)
 head(movie)
 movie$X <- NULL
 movie$X.1 <- NULL
 
-set.seed(123)
-library('caret')
-library('tidyverse')
 
 #Scaling
 df_continuous <- movie[c("runtime", "budget")]
@@ -22,7 +30,6 @@ trainData <- movie[inTrain,]
 testData <- movie[-inTrain,]
 stopifnot(nrow(trainData) + nrow(testData) == nrow(movie))
 
-library(MASS)
 
 #Logistic Regression on train dataset
 #logitModel <- glm(success_1_to_1 ~ .,family=binomial(link='logit'),data=trainData) %>% stepAIC(trace=FALSE)
@@ -39,8 +46,6 @@ hist(predicted)
 
 
 #Deciding optimal prediction probability cutoff for the model
-#install.packages("InformationValue")
-library(InformationValue)
 optCutOff <- optimalCutoff(testData$success_1_to_1, predicted)[1] 
 print(paste0("Optimal cutoff for the model: ", optCutOff))
 
@@ -62,10 +67,11 @@ mean(optCutOff.success.pred == testData$success_1_to_1)
 check_acc <- as.data.frame(as.factor(testData$success_1_to_1))
 check_acc['actual'] <- as.data.frame(as.factor(testData$success_1_to_1))
 check_acc['prediction'] <- as.factor(success.pred)
-caret::confusionMatrix(data=check_acc$prediction, reference=check_acc$actual)
+caret::confusionMatrix(data=check_acc$prediction, reference=check_acc$actual, positive = "1")
+
 
 check_acc['opt_prediction'] <- as.factor(optCutOff.success.pred)
-caret::confusionMatrix(data=check_acc$opt_prediction, reference=check_acc$actual)
+caret::confusionMatrix(data=check_acc$opt_prediction, reference=check_acc$actual,  positive = "1")
 
 
 #Missclassification Error
@@ -75,7 +81,7 @@ misClassError(testData$success_1_to_1, predicted, threshold = optCutOff)
 misClassError(testData$success_1_to_1, predicted, threshold = 0.5)
 
 #Precision, Recall and F1-Score claculation for thershold 0.5
-confusion_0.5 <- caret::confusionMatrix(data=check_acc$opt_prediction, reference=check_acc$actual)
+confusion_0.5 <- caret::confusionMatrix(data=check_acc$prediction, reference=check_acc$actual, positive = "1")
 print(paste0("Precision for 0.5 thershold: ", confusion_0.5$byClass[5]))
 
 print(paste0("Recall for 0.5 thershold: ", confusion_0.5$byClass[6]))
@@ -84,7 +90,7 @@ print(paste0("F1-Score for 0.5 thershold: ", confusion_0.5$byClass[7]))
 
 
 #Precision, Recall and F1-Score claculation for thershold optCutOff
-confusion_optCutoff <- caret::confusionMatrix(data=check_acc$opt_prediction, reference=check_acc$actual)
+confusion_optCutoff <- caret::confusionMatrix(data=check_acc$opt_prediction, reference=check_acc$actual, positive = "1")
 print(paste0("Presicion for optimal cutoff thershold: ", confusion_optCutoff$byClass[5]))
 
 print(paste0("Recall for optimal cutoff thershold: ", confusion_optCutoff$byClass[6]))
@@ -95,22 +101,12 @@ print(paste0("F1-Score for optimal cutoff thershold: ", confusion_optCutoff$byCl
 #The ROC curve
 plotROC(testData$success_1_to_1, predicted)
 
-#install.packages("ROCR")
-#library(ROCR)
-#pr <- prediction(predicted, testData$Success_2_to_1)
-#prf <- performance(pr, measure = "tpr", x.measure = "fpr")
-#plot(prf)
-
-#auc <- performance(pr, measure = "auc")
-#auc <- auc@y.values[[1]]
-#auc
 
 #Calcuting Concordance
 Concordance(testData$success_1_to_1, predicted)
 
 #Ploting precision recall curves
-#install.packages('DMwR')
-library('DMwR')
+
 PRcurve(preds = predicted, trues = testData$success_1_to_1)
 
 #The deviance
@@ -130,4 +126,3 @@ summary(deviance)
 aic<- 2 * length(logitModel$coefficients) - 2*logLik(logitModel)
 aic
 AIC(logitModel)
-
